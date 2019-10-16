@@ -1,0 +1,10 @@
+{
+    "extends": "tslint:recommended",
+    "rules": {
+        "directive-selector": [true, "attribute", "vrr", "camelCase"],
+        "component-selector": [true, "element", "vrr", "kebab-case"],
+        "no-invalid-this": false,
+        "no-console": false,
+        "interface-name" : false
+    }
+}

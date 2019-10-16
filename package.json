@@ -1,0 +1,22 @@
+{
+  "name": "cryptopals",
+  "version": "1.0.0",
+  "description": "Cryptopals code challenges",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf build && tsc -p tsconfig.json",
+    "serve": "node build/index.js",
+    "start": "rm -rf build && tsc -p tsconfig.json && node build/index.js"
+  },
+  "author": "Vincent Jones-Muth",
+  "license": "ISC",
+  "dependencies": {
+    "module-alias": "^2.2.2",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.4"
+  },
+  "_moduleAliases": {
+    "@": "src"
+  }
+}
