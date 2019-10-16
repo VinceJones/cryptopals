@@ -7,16 +7,17 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -rf build && tsc -p tsconfig.json",
     "serve": "node build/index.js",
-    "start": "rm -rf build && tsc -p tsconfig.json && node build/index.js"
+    "start": "clear && rm -rf build && tsc -p tsconfig.json && node build/index.js"
   },
   "author": "Vincent Jones-Muth",
   "license": "ISC",
   "dependencies": {
+    "@types/node": "^12.11.1",
     "module-alias": "^2.2.2",
     "tslint": "^5.20.0",
     "typescript": "^3.6.4"
   },
   "_moduleAliases": {
-    "@": "src"
+    "@helpers": "src/helpers"
   }
 }

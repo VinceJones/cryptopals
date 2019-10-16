@@ -1,5 +1,5 @@
 import DataTypes from './DataTypes.constants';
 
-export default {
+export {
     DataTypes,
 }

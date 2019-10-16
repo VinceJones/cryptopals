@@ -1,5 +1,7 @@
-import EncodeDecode from './EncodeDecode.helper';
+import * as EncodeDecode from './EncodeDecode.helper';
+import * as XOR from './XOR.helper';
 
-export default {
+export {
     EncodeDecode,
+    XOR,
 }
