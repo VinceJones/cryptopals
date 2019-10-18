@@ -1,6 +1,6 @@
 require('module-alias/register');
 
-import Challenges from './challenges/index';
+import Challenges from './challenges';
 
 
 const CHALLENGE_VALUES = Object.values(Challenges)

@@ -18,6 +18,8 @@
     "typescript": "^3.6.4"
   },
   "_moduleAliases": {
-    "@helpers": "src/helpers"
+    "@": "src",
+    "@/constants": "src/constants",
+    "@/helpers": "src/helpers"
   }
 }
