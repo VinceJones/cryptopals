@@ -1,6 +1,4 @@
-import { DataTypes } from '../constants';
-import { EncodeDecode } from '../helpers';
-
+import { XOR, Binary } from '../helpers';
 
 /*
  * Challenge 3:
@@ -19,8 +17,28 @@ import { EncodeDecode } from '../helpers';
  * You now have our permission to make "ETAOIN SHRDLU" jokes on Twitter.
  */
 
-const HEX_STRING = '1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736';
+const cipher: string = '1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736';
 
-const OUTPUT = "Challenge 3: " + EncodeDecode.decode(HEX_STRING, DataTypes.HEX);
+let cipherArray = [];
 
-export default OUTPUT;
+// Build 2 character hex array
+for (let i = 0; i < cipher.length; i += 2) { 
+    cipherArray.push(cipher[i].concat(cipher[i+1]));
+}
+
+cipherArray = cipherArray.map((hexString: string) => {
+    return Binary.to(hexString, 16);
+});
+
+const result: any = XOR.singleCharacter(cipherArray);
+
+const output = `
+Challenge 3:\n
+Single-byte XOR cipher\n\n
+Cipher             = ${cipher}\n
+Binary Key         = ${result.key}\n
+Binary Key Decimal = ${parseInt(result.key, 2).toString(10)}\n
+Binary Key Hex     = ${parseInt(result.key, 2).toString(16)}\n
+Message            = ${result.text}\n`;
+
+export default output;
