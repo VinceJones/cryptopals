@@ -1,4 +1,5 @@
 import { Binary, CharacterFrequency } from '../helpers';
+import { XorSingleCharacterResult } from '../interfaces';
 
 /*
  * XOR two strings
@@ -23,7 +24,7 @@ function stringToInt(value: string, position: number): number {
 /*
  * XOR String against all binary
  */
-function singleCharacter(cipherArray: string[]): Object {
+function singleCharacter(cipherArray: string[]): XorSingleCharacterResult {
 
     let texts = [];
     let tempText: any[] = [];
