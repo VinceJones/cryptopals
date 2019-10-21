@@ -75,8 +75,35 @@ function singleCharacter(hexBuffer: Buffer): XorSingleCharacterResult {
     };
 }
 
+function toHexString(byteArray: Uint8Array) {
+    return Array.prototype.map.call(byteArray, function(byte: number) {
+      return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+    }).join('');
+}
+
+/*
+ * Use a string as a repeating key XOR to encrypt another string.
+ *
+ * @return Uint8Array
+ *   Returns a Uint8Array of hex values
+ */
+function repeatingEncrypt(xorKey: string): Function {
+    return function (stringToEncrypt: string): Uint8Array {
+        const toEncryptHexBuffer = Buffer.from(Buffer.from(stringToEncrypt).toString('hex'), 'hex');
+        const keyBuffer = Buffer.from(xorKey);
+
+        return toHexString(
+            toEncryptHexBuffer.map(
+                (value: number, idx: number) => {
+                    return value ^ keyBuffer[idx % keyBuffer.length] 
+            }),
+        );
+    }
+}
+
 export {
     hex,
     singleCharacter,
     binaryHexComparison,
+    repeatingEncrypt,
 };
