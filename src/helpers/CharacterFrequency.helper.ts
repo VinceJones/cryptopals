@@ -1,9 +1,7 @@
 import { CharacterFrequency }  from '../constants';
 
 function freqScore(string: string) {
-
-    // console.log('freqScore string', string);
-    let score=0;
+    let score = 0;
     string = string.toLowerCase();
 
     string.split("").map((char: string, idx: number) => {

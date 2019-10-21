@@ -1,10 +1,6 @@
 import * as fs from "fs";
 import { XorSingleCharacterResult } from '../interfaces';
-import {
-    XOR,
-    Binary,
-    CharacterFrequency
-} from '../helpers';
+import { XOR, CharacterFrequency } from '../helpers';
 
 /*
  * Challenge 4:
@@ -27,18 +23,7 @@ let highestScoreingCipher: string = null;
 
 data.split('\n').map((cipher: string) => {
 
-    let cipherArray = [];
-
-    // Build 2 character hex array
-    for (let i = 0; i < cipher.length; i += 2) { 
-        cipherArray.push(cipher[i].concat(cipher[i+1]));
-    }
-
-    cipherArray = cipherArray.map((hexString: string) => {
-        return Binary.to(hexString, 16);
-    });
-
-    result = XOR.singleCharacter(cipherArray);
+    result = XOR.singleCharacter(Buffer.from(cipher, 'hex'));
     score = CharacterFrequency.freqScore(result.text);
 
     if (score > lastHighScore) {

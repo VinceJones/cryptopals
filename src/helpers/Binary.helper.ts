@@ -12,10 +12,10 @@ function to(value: string|number, from: number = 10): string {
     return binary
 }
 
-function build256Array(): string[] {
+function build256Array(length: number = 256): string[] {
     const RESULT: string[] = [];
 
-    for (let i = 0; i < 256; i++) {
+    for (let i = 0; i < length; i++) {
         RESULT.push(to(i));
     }
 

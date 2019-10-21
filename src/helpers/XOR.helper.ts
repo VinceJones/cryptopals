@@ -1,4 +1,4 @@
-import { Binary, CharacterFrequency } from '../helpers';
+import { CharacterFrequency } from '../helpers';
 import { XorSingleCharacterResult } from '../interfaces';
 
 /*
@@ -6,80 +6,77 @@ import { XorSingleCharacterResult } from '../interfaces';
  * @docs https://stackoverflow.com/questions/30651062/how-to-use-the-xor-on-two-strings#answer-30651307
  */
 function hex(a: string, b: string): string {
-    let result = "";
-    let maxLength = Math.max(a.length, b.length);
-    
+    const bufferA = Buffer.from(a, 'hex');
+    const bufferB = Buffer.from(b, 'hex');
+    const maxLength = Math.max(bufferA.length, bufferB.length);
 
-    while (maxLength-- > 0) {
-        result = (stringToInt(a, maxLength) ^ stringToInt(b, maxLength)).toString(16) + result;
+    let results = [];
+
+    for (let i = 0; i < maxLength; i++) {
+        results.push((bufferA[i] ^ bufferB[i]).toString(16));
     }
-        
-    return result;
+
+    return results.join("");
 }
 
-function stringToInt(value: string, position: number): number {
-    return parseInt(value.charAt(position), 16);
-}
+function binaryHexComparison(hexBuffer: Buffer): Function {
+    return function(binaryValue: number): string[] {
+        let xorResults: string[] = [],
+            xorResult: number = null;
 
-/*
- * XOR String against all binary
- */
-function singleCharacter(cipherArray: string[]): XorSingleCharacterResult {
+        for (const hexValue of hexBuffer) {
+            xorResult = hexValue ^ binaryValue;
 
-    let texts = [];
-    let tempText: any[] = [];
-    let xorResult: any[] = [];
-    let score = 0;
-    let lastHighScore = 0;
-    let highestScoringText: string = null;
-    let tempTextAccumulation = '';
-
-    let binaryArray = Binary.build256Array();
-
-    for (var i = 0; i < binaryArray.length; i++) {
-        for (var j = 0; j < cipherArray.length; j++) {
-            for (var k = 0; k < cipherArray[j].length; k++) {
-                xorResult = xorResult.concat(
-                    Number(cipherArray[j][k]) ^  Number(binaryArray[i][k]),
-                );
+            if (xorResult > 160) {
+                return [];
             }
 
-            tempText.push(String.fromCharCode(
-                Number(parseInt(xorResult.join(''), 2).toString(10)),
-            ));
-
-            xorResult = [];
+            xorResults.push(
+                String.fromCharCode(xorResult)
+            );
         }
 
-        tempTextAccumulation = tempText.join('');
-        texts.push(tempTextAccumulation);
+        return xorResults;
+    }
+}
 
-        let scoreString = new String(tempTextAccumulation).toString();
+function singleCharacter(hexBuffer: Buffer): XorSingleCharacterResult {
 
-        score = CharacterFrequency.freqScore(scoreString);
+    // Build an array of binary that only uses valid english characters.
+    const binaryArray = [...new Array(160)].map((_, i) => i);
+    const compareFunc = binaryHexComparison(hexBuffer);
+
+    let highestScoringText = '',
+        lastHighScore: number = 0,
+        binaryKey: number = null,
+        score = 0,
+        xorResults: string[] = null;
+
+    for (const binaryValue of binaryArray) {
+
+        xorResults = compareFunc(binaryValue);
+
+        if (xorResults.length !== hexBuffer.length) {
+            continue;
+        }
+
+        score = CharacterFrequency.freqScore(xorResults.join(''));
 
         if (score > lastHighScore) {
             lastHighScore = score;
-            highestScoringText = tempTextAccumulation;
+            highestScoringText = xorResults.join('');
+            binaryKey = binaryValue;
         }
-
-        tempText = [];
-        score = 0;
     }
-
-    let binaryKey = texts.map((text: string, idx: number) => {
-        return text === highestScoringText ? idx : false;
-    }).filter((result: boolean|number)=> {
-        return result !== false;
-    });
 
     return {
         text: highestScoringText,
-        key: binaryArray[Number(binaryKey)],
+        key: String(binaryKey),
     };
 }
 
 export {
     hex,
     singleCharacter,
+    binaryHexComparison,
 };
