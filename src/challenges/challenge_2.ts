@@ -1,4 +1,5 @@
 import { XOR } from '../helpers';
+import { Encoding } from '../constants';
 
 /*
  * Challenge 2:
@@ -22,7 +23,9 @@ const STRING_1 = '1c0111001f010100061a024b53535009181c';
 const STRING_2 = '686974207468652062756c6c277320657965';
 const COMPARE_STRING = '746865206b696420646f6e277420706c6179';
 
-const COMPARE = XOR.hex(STRING_1, STRING_2) === COMPARE_STRING;
+const xorTwoEqualStringLengths = XOR.equalStringLength(Encoding.HEX.text);
+
+const COMPARE = xorTwoEqualStringLengths(STRING_1)(STRING_2) === COMPARE_STRING;
 
 const OUTPUT = `
 Challenge 2:\n

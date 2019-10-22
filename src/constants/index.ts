@@ -1,7 +1,7 @@
-import DataTypes from './DataTypes.constants';
+import Encoding from './Encoding.constants';
 import CharacterFrequency from './CharacterFrequency.constants';
 
 export {
-    DataTypes,
+    Encoding,
     CharacterFrequency,
 }

@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import { XorSingleCharacterResult } from '../interfaces';
 import { XOR, CharacterFrequency } from '../helpers';
+import { Encoding } from '../constants';
 
 /*
  * Challenge 4:
@@ -13,7 +14,7 @@ import { XOR, CharacterFrequency } from '../helpers';
  */
 
 const filePath = 'src/data/challenge_4.txt';
-const data = fs.readFileSync(filePath, 'utf8');
+const data = fs.readFileSync(filePath, Encoding.UTF8.text);
 
 let result: XorSingleCharacterResult = null;
 let score = 0;
@@ -23,7 +24,10 @@ let highestScoreingCipher: string = null;
 
 data.split('\n').map((cipher: string) => {
 
-    result = XOR.singleCharacter(Buffer.from(cipher, 'hex'));
+    result = XOR.singleCharacter(
+        Buffer.from(cipher, Encoding.HEX.text)
+    );
+
     score = CharacterFrequency.freqScore(result.text);
 
     if (score > lastHighScore) {

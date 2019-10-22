@@ -1,4 +1,4 @@
-import { DataTypes } from '../constants';
+import { Encoding } from '../constants';
 import { EncodeDecode } from '../helpers';
 
 /*
@@ -18,20 +18,22 @@ import { EncodeDecode } from '../helpers';
  * 
  * @docs https://cryptopals.com/sets/1/challenges/1
  */
-const HEX_STRING = '49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d';
-const COMPARE_STRING = 'SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t';
+const hexString = '49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d';
+const compareString = 'SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t';
 
-const HEX_DECODE = EncodeDecode.decode(HEX_STRING, DataTypes.HEX);
-const ENCODE_TO_BASE64 = EncodeDecode.encode(HEX_DECODE, DataTypes.BASE_64);
-const COMPARE = ENCODE_TO_BASE64 === COMPARE_STRING;
+const hexDecodeFunc = EncodeDecode.decode(Encoding.BASE_64.text);
+const base64EncodeFunc = EncodeDecode.encode(Encoding.BASE_64.text);
+
+const encodeToBase64 = base64EncodeFunc(
+    hexDecodeFunc(hexString),
+);
 
 const OUTPUT = `
 Challenge 1:\n
 Convert hex to base64\n\n
-original text = ${HEX_STRING}\n
-expected text = ${COMPARE_STRING}\n
-hex decode    = ${HEX_DECODE}\n
-base64 encode = ${ENCODE_TO_BASE64}\n
-isSame: ${COMPARE}\n`;
+original text = ${hexString}\n
+expected text = ${compareString}\n
+base64 encode = ${encodeToBase64}\n
+isSame: ${encodeToBase64 === compareString}\n`;
 
 export default OUTPUT;

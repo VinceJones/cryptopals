@@ -1,9 +1,13 @@
-function encode(value: string, type: BufferEncoding): string {
-    return Buffer.from(value).toString(type);
+function encode(type: BufferEncoding): Function {
+    return function(value: string): string {
+        return Buffer.from(value).toString(type);
+    }
 }
 
-function decode(value: string, type: BufferEncoding): string {
-    return Buffer.from(value, type).toString();
+function decode(type: BufferEncoding): Function {
+    return function(value: string): string {
+        return Buffer.from(value, type).toString();
+    }
 }
 
 export {

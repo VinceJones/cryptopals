@@ -1,5 +1,5 @@
-// import { XOR, Binary } from '../helpers';
 import { XOR } from '../helpers';
+import { Encoding } from '../constants';
 
 /*
  * Challenge 3:
@@ -20,20 +20,9 @@ import { XOR } from '../helpers';
 
 const cipher: string = '1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736';
 
-// Build 2 character hex array
-// let cipherArray = [];
-// for (let i = 0; i < cipher.length; i += 2) { 
-//     cipherArray.push(cipher[i].concat(cipher[i+1]));
-// }
-
-// cipherArray = cipherArray.map((hexString: string) => {
-//     return Binary.to(hexString, 16);
-// });
-// const result: any = XOR.singleCharacter(cipherArray);
-
-let cipherBuffer = Buffer.from(cipher, 'hex');
-const result: any = XOR.singleCharacter(cipherBuffer);
-
+const result: any = XOR.singleCharacter(
+    Buffer.from(cipher, Encoding.HEX.text)
+);
 
 const output = `
 Challenge 3:\n

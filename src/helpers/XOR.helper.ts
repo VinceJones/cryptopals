@@ -1,22 +1,36 @@
-import { CharacterFrequency } from '../helpers';
+import { CharacterFrequency, Binary } from '../helpers';
 import { XorSingleCharacterResult } from '../interfaces';
+import { Encoding } from '../constants';
 
 /*
  * XOR two strings
- * @docs https://stackoverflow.com/questions/30651062/how-to-use-the-xor-on-two-strings#answer-30651307
+ * 
+ * @returns string
+ *   HEX string
  */
-function hex(a: string, b: string): string {
-    const bufferA = Buffer.from(a, 'hex');
-    const bufferB = Buffer.from(b, 'hex');
-    const maxLength = Math.max(bufferA.length, bufferB.length);
+function equalStringLength(type: BufferEncoding): Function {
+    return function(stringA: string): Function {
+        return function(stringB: string): string {
+            const bufferA = Buffer.from(stringA, type);
+            const bufferB = Buffer.from(stringB, type);
+            const maxLength = Math.max(bufferA.length, bufferB.length);
 
-    let results = [];
+            let results = [];
 
-    for (let i = 0; i < maxLength; i++) {
-        results.push((bufferA[i] ^ bufferB[i]).toString(16));
+            for (let i = 0; i < maxLength; i++) {
+                results.push((bufferA[i] ^ bufferB[i]).toString(16));
+            }
+
+            return results.map((byte: string) => {
+                if (byte.length === 2) {
+                    return byte;
+                }
+
+                return '0' + byte;
+            }).join("");;
+        }
     }
-
-    return results.join("");
+    
 }
 
 function binaryHexComparison(hexBuffer: Buffer): Function {
@@ -85,11 +99,14 @@ function toHexString(byteArray: Uint8Array) {
  * Use a string as a repeating key XOR to encrypt another string.
  *
  * @return Uint8Array
- *   Returns a Uint8Array of hex values
+ *   Returns a Uint8Array of hex values.
  */
 function repeatingEncrypt(xorKey: string): Function {
     return function (stringToEncrypt: string): Uint8Array {
-        const toEncryptHexBuffer = Buffer.from(Buffer.from(stringToEncrypt).toString('hex'), 'hex');
+        const toEncryptHexBuffer = Buffer.from(
+            Buffer.from(stringToEncrypt).toString(Encoding.HEX.text),
+            Encoding.HEX.text,
+        );
         const keyBuffer = Buffer.from(xorKey);
 
         return toHexString(
@@ -101,9 +118,51 @@ function repeatingEncrypt(xorKey: string): Function {
     }
 }
 
+function countCharInString(regexp: RegExp): Function {
+    return function(text: string): number {
+        return (text.match(regexp) || []).length;
+    }
+}
+
+/*
+ * Hamming Distance
+ *
+ * Hamming distance is a metric for comparing two binary data strings. While
+ * comparing two binary strings of equal length, Hamming distance is the
+ * number of bit positions in which the two bits are different.
+ * 
+ * In order to calculate the Hamming distance between two strings, and , we
+ * perform their XOR operation, (a ⊕ b), and then count the total number of
+ * 1s in the resultant string.
+ */
+function hammingDistance(type: BufferEncoding): Function {
+    return function(stringA: string): Function {
+        return function (stringB: string): number {
+
+            const toBinaryFunc = Binary.to();
+            const countFunc = countCharInString(/1/g);
+            const counts: number[] = [];
+            
+            const hexXorResult = equalStringLength(type)(stringA)(stringB);
+            const hexXorResultBuff = Buffer.from(hexXorResult, Encoding.HEX.text);
+
+            for (const decResult of hexXorResultBuff) {
+                counts.push(countFunc(
+                    toBinaryFunc(decResult),
+                ));
+            }
+
+            return counts.reduce((a, b) => a + b);
+        }
+    }
+}
+
+
 export {
-    hex,
+    equalStringLength,
     singleCharacter,
     binaryHexComparison,
     repeatingEncrypt,
+    hammingDistance,
+    countCharInString,
 };
