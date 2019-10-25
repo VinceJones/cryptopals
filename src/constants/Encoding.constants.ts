@@ -14,6 +14,7 @@ enum BINARY {
 };
 
 enum DECIMAL {
+    text = 'decimal',
     value = 10,
 };
 

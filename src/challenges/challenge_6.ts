@@ -1,7 +1,7 @@
 import * as fs from "fs";
 
-import { XOR, EncodeDecode } from '../helpers';
-import { Encoding } from '../constants';
+import { XOR, Util } from '../helpers';
+// import { Encoding } from '../constants';
 
 /*
  * Challenge 6:
@@ -56,23 +56,33 @@ import { Encoding } from '../constants';
  */
 
 // Hamming Test Start
-const hammingFunc = XOR.hammingDistance(Encoding.ASCII.text);
 const testStringA = 'this is a test';
 const testStringB = 'wokka wokka!!!';
-const hammingTest = hammingFunc(testStringA)(testStringB);
+const hammingTest = XOR.hammingDistance(testStringA)(testStringB);
 // Hamming test END
 
-
 const filePath = 'src/data/challenge_6.txt';
-const dataArray = fs.readFileSync(filePath, Encoding.UTF8.text).split('\n');
+let testString = Buffer.from(fs.readFileSync(filePath, 'utf-8'), 'base64')
 
-const base64DecodeFunc = EncodeDecode.decode(Encoding.BASE_64.text);
+const buildBlocksFunc = Util.buildKeysizeBlocks(testString);
+let keySize = XOR.determineKeySize(testString)(40);
 
-// Each line length is 60 characters long, need 2 lines to find key size.
-const keySizeTestString = base64DecodeFunc(dataArray[0]) + base64DecodeFunc(dataArray[1]);
+const transposedBlocks = Util.transposeBlocks(
+    buildBlocksFunc(keySize)
+);
 
-console.log('keySizeTestString', keySizeTestString);
+let keys: Buffer[] = [];
+for (const block of transposedBlocks) {
+    let xorResult = XOR.singleCharacter(block);
+    keys.push(Buffer.from(String.fromCharCode(Number(xorResult.key))));
+}
 
+let key: Buffer = Buffer.concat(keys);
+
+console.log(Buffer.from(XOR.equalStringLength(testString)(key)));
+
+let decodedMessage = Buffer.from(XOR.equalStringLength(testString)(key), 'hex').toString('ascii');
+console.log(decodedMessage);
 
 const output = `
 Challenge 6:\n

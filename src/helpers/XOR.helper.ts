@@ -1,36 +1,28 @@
-import { CharacterFrequency, Binary } from '../helpers';
+import { Util, Binary } from '../helpers';
 import { XorSingleCharacterResult } from '../interfaces';
 import { Encoding } from '../constants';
 
 /*
  * XOR two strings
+ *
+ * @todo: Refactor to return buffer.
  * 
  * @returns string
  *   HEX string
  */
-function equalStringLength(type: BufferEncoding): Function {
-    return function(stringA: string): Function {
-        return function(stringB: string): string {
-            const bufferA = Buffer.from(stringA, type);
-            const bufferB = Buffer.from(stringB, type);
-            const maxLength = Math.max(bufferA.length, bufferB.length);
+function equalStringLength(stringA: string|Buffer): Function {
+    return function(stringB: string|Buffer): number[] {
+        const bufferA = Util.mabyeStringToBuffer(stringA);
+        const bufferB = Util.mabyeStringToBuffer(stringB);
 
-            let results = [];
+        let results = [];
 
-            for (let i = 0; i < maxLength; i++) {
-                results.push((bufferA[i] ^ bufferB[i]).toString(16));
-            }
-
-            return results.map((byte: string) => {
-                if (byte.length === 2) {
-                    return byte;
-                }
-
-                return '0' + byte;
-            }).join("");;
+        for (let i = 0; i < bufferA.length; i++) {
+            results.push(bufferA[i] ^ bufferB[i % bufferB.length]);
         }
+
+        return results;
     }
-    
 }
 
 function binaryHexComparison(hexBuffer: Buffer): Function {
@@ -74,7 +66,7 @@ function singleCharacter(hexBuffer: Buffer): XorSingleCharacterResult {
             continue;
         }
 
-        score = CharacterFrequency.freqScore(xorResults.join(''));
+        score = Util.freqScore(xorResults.join(''));
 
         if (score > lastHighScore) {
             lastHighScore = score;
@@ -135,28 +127,62 @@ function countCharInString(regexp: RegExp): Function {
  * perform their XOR operation, (a ⊕ b), and then count the total number of
  * 1s in the resultant string.
  */
-function hammingDistance(type: BufferEncoding): Function {
-    return function(stringA: string): Function {
-        return function (stringB: string): number {
+function hammingDistance(stringA: string|Buffer): Function {
+    return function (stringB: string|Buffer): number {
 
-            const toBinaryFunc = Binary.to();
-            const countFunc = countCharInString(/1/g);
-            const counts: number[] = [];
-            
-            const hexXorResult = equalStringLength(type)(stringA)(stringB);
-            const hexXorResultBuff = Buffer.from(hexXorResult, Encoding.HEX.text);
+        const toBinaryFunc = Binary.to();
+        const countFunc = countCharInString(/1/g);
+        const counts: number[] = [];
+        
+        const hexXorResult = equalStringLength(stringA)(stringB);
+        const hexXorResultBuff = Buffer.from(hexXorResult, Encoding.HEX.text);
 
-            for (const decResult of hexXorResultBuff) {
-                counts.push(countFunc(
-                    toBinaryFunc(decResult),
-                ));
-            }
-
-            return counts.reduce((a, b) => a + b);
+        for (const decResult of hexXorResultBuff) {
+            counts.push(countFunc(
+                toBinaryFunc(decResult),
+            ));
         }
+
+        return counts.reduce((a, b) => a + b);
     }
 }
 
+interface KeySizeResult { 
+    keySize: number;
+    score: number;
+}
+
+function determineKeySize(message: Buffer): Function {
+    return function (max: number): number {    
+        const keySizeResults: KeySizeResult[] = [];
+        let keySizeFunc = testKeySize(message);
+
+        for (let keySize = 2; keySize < max; keySize++) {
+            keySizeResults.push({
+                keySize: keySize,
+                score: keySizeFunc(keySize),
+            });
+        }
+
+        return keySizeResults.reduce((x, y) => x.score < y.score ? x : y).keySize;
+    }
+}
+
+function testKeySize(message: Buffer): Function {
+    return function(keySize: number): number {
+        const tests = 50;
+        let score = 0;
+
+        for (let i = 0; i < tests; i++) {
+            let first  = message.slice(keySize * i, keySize * (i + 1));
+            let second = message.slice(keySize * (i + 2), keySize * (i + 3));
+
+            score += hammingDistance(first)(second)
+        }
+
+        return score / (tests * keySize);
+    }
+}
 
 export {
     equalStringLength,
@@ -165,4 +191,5 @@ export {
     repeatingEncrypt,
     hammingDistance,
     countCharInString,
+    determineKeySize,
 };

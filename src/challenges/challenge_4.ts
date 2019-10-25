@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import { XorSingleCharacterResult } from '../interfaces';
-import { XOR, CharacterFrequency } from '../helpers';
+import { XOR, Util } from '../helpers';
 import { Encoding } from '../constants';
 
 /*
@@ -28,7 +28,7 @@ data.split('\n').map((cipher: string) => {
         Buffer.from(cipher, Encoding.HEX.text)
     );
 
-    score = CharacterFrequency.freqScore(result.text);
+    score = Util.freqScore(result.text);
 
     if (score > lastHighScore) {
         lastHighScore = score;
